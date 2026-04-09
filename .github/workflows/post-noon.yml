@@ -1,0 +1,29 @@
+name: 昼の投稿 (12:30 JST)
+on:
+  schedule:
+    - cron: '30 3 * * *'
+  workflow_dispatch:
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: 投稿を実行
+        env:
+          THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
+          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+        run: node scripts/post.js noon
+      - name: 保存
+        run: |
+          git config user.name "threads-bot"
+          git config user.email "bot@threads-auto"
+          git add data/posts.json
+          git diff --cached --quiet || git commit -m "post: noon"
+          git push

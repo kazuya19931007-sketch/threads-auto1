@@ -66,6 +66,8 @@ async function main() {
     process.exit(1);
   }
 
+const today = todayJST();  
+  
   const startDate = new Date('2026-04-07T00:00:00+09:00');
 const nowJST = new Date(new Date().getTime() + 9 * 60 * 60 * 1000);
 const dayNumber = Math.floor((nowJST - startDate) / (1000 * 60 * 60 * 24)) + 1;

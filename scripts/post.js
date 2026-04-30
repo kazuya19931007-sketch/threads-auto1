@@ -1,8 +1,3 @@
-/**
- * post.js — 指定スロットの投稿をThreadsへ送信
- * 使い方: node scripts/post.js <slot>
- *   slot: morning | noon | night
- */
 const fs = require('fs');
 const path = require('path');
 
@@ -66,29 +61,29 @@ async function main() {
     process.exit(1);
   }
 
-const today = todayJST();  
-  
+  const today = todayJST();
+
   const startDate = new Date('2026-04-07T00:00:00+09:00');
-const nowJST = new Date(new Date().getTime() + 9 * 60 * 60 * 1000);
-const dayNumber = Math.floor((nowJST - startDate) / (1000 * 60 * 60 * 24)) + 1;
+  const nowJST = new Date(new Date().getTime() + 9 * 60 * 60 * 1000);
+  const dayNumber = Math.floor((nowJST - startDate) / (1000 * 60 * 60 * 24)) + 1;
 
-const SLOT_LABEL = { morning: '朝', noon: '昼', night: '夜' };
-const timeLabel = SLOT_LABEL[slot];
+  const SLOT_LABEL = { morning: '朝', noon: '昼', night: '夜' };
+  const timeLabel = SLOT_LABEL[slot];
 
-const posts = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+  const posts = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
 
-const target = posts.find(p =>
-  p.day === dayNumber && p.time === timeLabel && p.status !== 'posted'
-);
+  const target = posts.find(p =>
+    p.day === dayNumber && p.time === timeLabel && p.status !== 'posted'
+  );
 
   if (!target) {
     console.log(`[${today} ${time}] 投稿対象なし（既投稿 or 未生成）`);
     process.exit(0);
   }
 
-  console.log(`投稿開始: [${today} ${time}] ${target.content}`);
+  console.log(`投稿開始: [${today} ${time}] ${target.text}`);
 
-  const containerId = await createContainer(target.content);
+  const containerId = await createContainer(target.text);
   const threadId    = await publishContainer(containerId);
 
   target.status   = 'posted';

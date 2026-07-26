@@ -93,4 +93,7 @@ async function main() {
   console.log(`投稿完了 threadId=${threadId}`);
 }
 
-main().catch(e => { console.error(e.message); process.exit(1); });
+main().catch(e => {
+  console.error('エラー:', e.message);
+  process.exitCode = 1;
+});

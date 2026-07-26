@@ -16,7 +16,9 @@ const DATA_FILE        = path.join(__dirname, '../data/posts.json');
 async function fetchJ(url, opts) {
   const res = await fetch(url, opts);
   const text = await res.text();
-  try { return JSON.parse(text); } catch { throw new Error(text); }
+  console.log(`[HTTP ${res.status}] ${url}`);
+  console.log(`response body: ${text}`);
+  try { return JSON.parse(text); } catch { throw new Error(`JSON解析失敗 status=${res.status} body=${text}`); }
 }
 
 async function createContainer(text) {

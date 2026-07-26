@@ -7,6 +7,8 @@ const SLOT_MAP = {
   night:   '22:00',
 };
 
+const SLOT_LABEL = { morning: '朝', noon: '昼', night: '夜' };
+
 const THREADS_USER_ID  = process.env.THREADS_USER_ID;
 const THREADS_TOKEN    = process.env.THREADS_ACCESS_TOKEN;
 const DATA_FILE        = path.join(__dirname, '../data/posts.json');
@@ -62,19 +64,16 @@ async function main() {
   }
 
   const today = todayJST();
-
-  const startDate = new Date('2026-04-07T00:00:00+09:00');
-  const nowJST = new Date(new Date().getTime() + 9 * 60 * 60 * 1000);
-  const dayNumber = Math.floor((nowJST - startDate) / (1000 * 60 * 60 * 24)) + 1;
-
-  const SLOT_LABEL = { morning: '朝', noon: '昼', night: '夜' };
   const timeLabel = SLOT_LABEL[slot];
 
   const posts = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
 
-  const target = posts.find(p =>
-    p.day === dayNumber && p.time === timeLabel && p.status !== 'posted'
-  );
+  // 「今日が何日目か」を暦日から計算するのではなく、
+  // そのスロット(朝/昼/夜)の中でまだ投稿していない一番古い(day番号が小さい)投稿を探す。
+  // こうすることで、自動投稿が何日止まっても、再開すれば続きから自動で拾える。
+  const target = posts
+    .filter(p => p.time === timeLabel && p.status !== 'posted')
+    .sort((a, b) => a.day - b.day)[0];
 
   if (!target) {
     console.log(`[${today} ${time}] 投稿対象なし（既投稿 or 未生成）`);
